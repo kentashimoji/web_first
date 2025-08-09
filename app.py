@@ -58,7 +58,7 @@ elif st.session_state.page == "quiz":
                 st.session_state.show_explanation = True
 
     if st.session_state.show_explanation:
-        st.markdown(f"📘 解説：{st.session_state.last_explanation}")
+        st.markdown(st.session_state.last_explanation)
         if st.button("次の問題へ"):
             st.session_state.current += 1
             st.session_state.show_explanation = False
