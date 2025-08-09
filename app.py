@@ -26,7 +26,7 @@ if selected != st.session_state.selected_category:
     st.session_state.current = 0
     st.session_state.score = 0
     st.session_state.show_explanation = False
-    st.experimental_rerun()
+    st.rerun()
 
 # --- 出題対象を絞り込み ---
 questions = [q for q in all_questions if q["category"] == st.session_state.selected_category]
@@ -56,7 +56,7 @@ if st.session_state.show_explanation:
     if st.button("次の問題へ"):
         st.session_state.current += 1
         st.session_state.show_explanation = False
-        st.experimental_rerun()
+        st.rerun()
 
 # --- 終了画面 ---
 elif st.session_state.current >= total:
@@ -67,4 +67,5 @@ elif st.session_state.current >= total:
         st.session_state.current = 0
         st.session_state.score = 0
         st.session_state.show_explanation = False
-        st.experimental_rerun()
+        st.rerun()
+
