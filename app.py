@@ -64,11 +64,11 @@ elif st.session_state.page == "quiz":
         st.session_state.show_more = True
         st.rerun()
 
-    if st.session_state.show_more:
-        if "explanation2" in q and q["explanation2"]:
-            st.markdown(q["explanation2"], unsafe_allow_html=True)
-        else:
-            st.info("補足説明はありません。")
+        if st.session_state.show_more:
+            if "explanation2" in q and q["explanation2"]:
+                st.markdown(q["explanation2"], unsafe_allow_html=True)
+            else:
+                st.info("補足説明はありません。")
 
     if st.button("次の問題へ"):
         st.session_state.current += 1
