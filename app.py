@@ -59,14 +59,14 @@ elif st.session_state.page == "quiz":
 
     if st.session_state.show_explanation:
         st.markdown(st.session_state.last_explanation)
+    
+    if st.button("📖 One More"):
+        st.session_state.show_more = True
+        st.rerun()
 
-        if st.button("📖 One More"):
-            st.session_state.show_more = True
-            st.rerun()
+    if st.session_state.show_more:
+        st.markdown(q["explanation2"], unsafe_allow_html=True)
 
-            if st.session_state.show_more:
-                st.markdown(q["explanation2"], unsafe_allow_html=True)
-                
         if st.button("次の問題へ"):
             st.session_state.current += 1
             st.session_state.show_explanation = False
