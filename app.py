@@ -2,18 +2,17 @@ import streamlit as st
 import json
 
 # --- 初期化 ---
-if "page" not in st.session_state:
-    st.session_state.page = "home"
-if "selected_category" not in st.session_state:
-    st.session_state.selected_category = None
-if "current" not in st.session_state:
-    st.session_state.current = 0
-if "score" not in st.session_state:
-    st.session_state.score = 0
-if "show_explanation" not in st.session_state:
-    st.session_state.show_explanation = False
-if "last_explanation" not in st.session_state:
-    st.session_state.last_explanation = ""
+for key, value in {
+    "page": "home",
+    "selected_category": None,
+    "current": 0,
+    "score": 0,
+    "show_explanation": False,
+    "last_explanation": "",
+    "show_more": False,
+}.items():
+    if key not in st.session_state:
+        st.session_state[key] = value
 
 # --- データ読み込み ---
 with open("questions.json", encoding="utf-8") as f:
@@ -27,12 +26,13 @@ if st.session_state.page == "home":
     st.write("挑戦したいカテゴリを選んでください👇")
 
     for cat in categories:
-        if st.button(f"▶ {cat}クイズを始める", key=cat):
+        if st.button(f"▶ {cat}クイズを始める", key=f"start_{cat}"):
             st.session_state.selected_category = cat
             st.session_state.page = "quiz"
             st.session_state.current = 0
             st.session_state.score = 0
             st.session_state.show_explanation = False
+            st.session_state.show_more = False
             st.rerun()
 
 # --- クイズページ ---
@@ -46,8 +46,9 @@ elif st.session_state.page == "quiz":
         q = questions[st.session_state.current]
         st.subheader(f"Q{q['id']}：{q['question']}")
 
+        # 選択肢ボタン
         for i, choice in enumerate(q["choices"]):
-            if st.button(choice, key=f"{q['id']}_{choice}"):
+            if st.button(choice, key=f"{q['id']}_choice_{i}"):
                 is_correct = (i == q["correct_index"])
                 if is_correct:
                     st.success("✅ 正解！")
@@ -56,11 +57,14 @@ elif st.session_state.page == "quiz":
                     st.error("❌ 不正解")
                 st.session_state.last_explanation = q["explanation"]
                 st.session_state.show_explanation = True
+                st.session_state.show_more = False
+                st.rerun()
 
-            if st.session_state.show_explanation:
-                st.markdown(st.session_state.last_explanation)
-    
-            if st.button("📖 One More"):
+        # 解説表示
+        if st.session_state.show_explanation:
+            st.markdown(st.session_state.last_explanation)
+
+            if st.button("📖 One More", key=f"more_{q['id']}"):
                 st.session_state.show_more = True
                 st.rerun()
 
@@ -70,23 +74,28 @@ elif st.session_state.page == "quiz":
                 else:
                     st.info("補足説明はありません。")
 
-    if st.button("次の問題へ"):
-        st.session_state.current += 1
-        st.session_state.show_explanation = False
-        st.rerun()
+        # 次の問題へ
+        if st.button("次の問題へ", key=f"next_{q['id']}"):
+            st.session_state.current += 1
+            st.session_state.show_explanation = False
+            st.session_state.show_more = False
+            st.rerun()
 
-    elif st.session_state.current >= total:
+    else:
+        # 結果表示
         rate = round((st.session_state.score / total) * 100)
         st.header("🎉 クイズ終了！")
         st.write(f"正答率：{rate}%（{st.session_state.score} / {total}）")
+
         col1, col2 = st.columns(2)
         with col1:
-            if st.button("🔁 もう一度挑戦"):
+            if st.button("🔁 もう一度挑戦", key="retry"):
                 st.session_state.current = 0
                 st.session_state.score = 0
                 st.session_state.show_explanation = False
+                st.session_state.show_more = False
                 st.rerun()
         with col2:
-            if st.button("🏠 トップに戻る"):
+            if st.button("🏠 トップに戻る", key="back_home"):
                 st.session_state.page = "home"
                 st.rerun()
