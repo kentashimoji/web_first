@@ -10,6 +10,8 @@ for key, value in {
     "show_explanation": False,
     "last_explanation": "",
     "show_more": False,
+    "answered": False,
+    "is_correct": False,
 }.items():
     if key not in st.session_state:
         st.session_state[key] = value
@@ -33,6 +35,7 @@ if st.session_state.page == "home":
             st.session_state.score = 0
             st.session_state.show_explanation = False
             st.session_state.show_more = False
+            st.session_state.answered = False
             st.rerun()
 
 # --- クイズページ ---
@@ -49,19 +52,24 @@ elif st.session_state.page == "quiz":
         # 選択肢ボタン
         for i, choice in enumerate(q["choices"]):
             if st.button(choice, key=f"{q['id']}_choice_{i}"):
-                is_correct = (i == q["correct_index"])
-                if is_correct:
-                    st.success("✅ 正解！")
-                    st.session_state.score += 1
-                else:
-                    st.error("❌ 不正解")
+                st.session_state.answered = True
+                st.session_state.is_correct = (i == q["correct_index"])
                 st.session_state.last_explanation = q["explanation"]
                 st.session_state.show_explanation = True
+                if st.session_state.is_correct:
+                    st.session_state.score += 1
                 st.session_state.show_more = False
                 st.rerun()
 
-        # 解説表示
+        # 正誤表示と解説
         if st.session_state.show_explanation:
+            if st.session_state.answered:
+                if st.session_state.is_correct:
+                    st.success("✅ 正解！")
+                else:
+                    st.error("❌ 不正解")
+                st.session_state.answered = False  # 表示は1回だけ
+
             st.markdown(st.session_state.last_explanation)
 
             if st.button("📖 One More", key=f"more_{q['id']}"):
@@ -79,6 +87,7 @@ elif st.session_state.page == "quiz":
             st.session_state.current += 1
             st.session_state.show_explanation = False
             st.session_state.show_more = False
+            st.session_state.answered = False
             st.rerun()
 
     else:
@@ -94,6 +103,7 @@ elif st.session_state.page == "quiz":
                 st.session_state.score = 0
                 st.session_state.show_explanation = False
                 st.session_state.show_more = False
+                st.session_state.answered = False
                 st.rerun()
         with col2:
             if st.button("🏠 トップに戻る", key="back_home"):
